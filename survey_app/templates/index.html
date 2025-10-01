@@ -21,6 +21,9 @@
                     <a href="{{ url_for('main.take_survey', survey_id=s.id) }}" class="btn btn-primary btn-sm">✏️ Пройти</a>
                 {% endif %}
                 <a href="{{ url_for('main.results', survey_id=s.id) }}" class="btn btn-info btn-sm">📊 Результаты</a>
+                {% if not s.is_active %}
+                    <a href="{{ url_for('main.manage_survey', survey_id=s.id) }}" class="btn btn-warning btn-sm">⚙️ Редактировать</a>
+                {% endif %}
                 <form method="post" action="{{ url_for('main.delete_survey', survey_id=s.id) }}" style="display:inline;">
                     <button class="btn btn-danger btn-sm" onclick="return confirm('Удалить опрос?')">🗑️ Удалить</button>
                 </form>

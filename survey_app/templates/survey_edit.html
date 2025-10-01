@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Редактирование опроса: {{ survey.title }}</h2>
+
+<form method="post">
+    {% for q in survey.questions %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <label>Вопрос {{ loop.index }}</label>
+                <input type="text" name="question_{{ q.id }}" value="{{ q.text }}" class="form-control mb-2">
+
+                <h6>Варианты ответа:</h6>
+                <ul class="list-group mb-2">
+                    {% for c in q.choices %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <input type="text" name="choice_{{ c.id }}" value="{{ c.text }}" class="form-control me-2">
+                            <a href="{{ url_for('main.delete_choice', choice_id=c.id, survey_id=survey.id) }}"
+                               class="btn btn-sm btn-danger">➖</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <a href="{{ url_for('main.add_choice', question_id=q.id, survey_id=survey.id) }}" class="btn btn-sm btn-success">➕ Добавить вариант</a>
+            </div>
+        </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">💾 Сохранить изменения</button>
+</form>
+{% endblock %}

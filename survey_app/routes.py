@@ -24,7 +24,8 @@ def new_survey():
         return redirect(url_for("main.manage_survey", survey_id=survey.id))
     return render_template("survey_new.html")
 
-# Управление опросом (добавление вопросов)
+
+# Управление опросом (добавление и редактирование вопросов)
 @bp.route("/survey/<int:survey_id>/manage", methods=["GET", "POST"])
 def manage_survey(survey_id):
     survey = Survey.query.get_or_404(survey_id)
@@ -32,6 +33,7 @@ def manage_survey(survey_id):
         return redirect(url_for("main.index"))
 
     if request.method == "POST":
+        # Добавляем новый вопрос
         q_text = request.form["question_text"]
         q_type = request.form["q_type"]
         question = Question(text=q_text, q_type=q_type, survey_id=survey.id)
@@ -47,6 +49,34 @@ def manage_survey(survey_id):
         return redirect(url_for("main.manage_survey", survey_id=survey.id))
 
     return render_template("survey_manage.html", survey=survey)
+
+
+# Добавить вариант к вопросу
+@bp.route("/question/<int:question_id>/add_choice")
+def add_choice(question_id):
+    question = Question.query.get_or_404(question_id)
+    db.session.add(Choice(text="Новый вариант", question_id=question.id))
+    db.session.commit()
+    return redirect(url_for("main.manage_survey", survey_id=question.survey_id))
+
+
+# Удалить вариант
+@bp.route("/choice/<int:choice_id>/delete/<int:survey_id>")
+def delete_choice(choice_id, survey_id):
+    choice = Choice.query.get_or_404(choice_id)
+    db.session.delete(choice)
+    db.session.commit()
+    return redirect(url_for("main.manage_survey", survey_id=survey_id))
+
+
+# Удалить вопрос
+@bp.route("/question/<int:question_id>/delete/<int:survey_id>")
+def delete_question(question_id, survey_id):
+    question = Question.query.get_or_404(question_id)
+    db.session.delete(question)
+    db.session.commit()
+    return redirect(url_for("main.manage_survey", survey_id=survey_id))
+
 
 # Завершение опроса
 @bp.route("/survey/<int:survey_id>/finish", methods=["POST"])
@@ -65,6 +95,8 @@ def delete_survey(survey_id):
     db.session.commit()
     return redirect(url_for("main.index"))
 
+
+# Прохождение опроса
 @bp.route("/survey/<int:survey_id>/take", methods=["GET", "POST"])
 def take_survey(survey_id):
     survey = Survey.query.get_or_404(survey_id)
@@ -81,7 +113,6 @@ def take_survey(survey_id):
         return render_template("survey_thanks.html", survey=survey)
 
     return render_template("survey_take.html", survey=survey)
-
 
 
 # Просмотр результатов
