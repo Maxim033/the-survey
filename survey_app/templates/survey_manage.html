@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Опрос: {{ survey.title }}</h2>
+<p>{{ survey.description }}</p>
+
+{% if not survey.is_active %}
+<h4>Добавить вопрос</h4>
+<form method="post">
+    <input class="form-control mb-2" name="question_text" placeholder="Текст вопроса" required>
+    <select class="form-control mb-2" name="q_type" required>
+        <option value="single">Один вариант</option>
+        <option value="multiple">Несколько вариантов</option>
+    </select>
+    <input class="form-control mb-2" name="choice_text" placeholder="Вариант ответа 1">
+    <input class="form-control mb-2" name="choice_text" placeholder="Вариант ответа 2">
+    <input class="form-control mb-2" name="choice_text" placeholder="Вариант ответа 3">
+    <button class="btn btn-primary">Добавить</button>
+</form>
+
+<form method="post" action="{{ url_for('main.finish_survey', survey_id=survey.id) }}" class="mt-3">
+    <button class="btn btn-success">✅ Завершить опрос</button>
+</form>
+{% else %}
+<p class="text-success"><strong>Опрос завершён, можно проходить.</strong></p>
+{% endif %}
+
+<hr>
+<h4>Вопросы:</h4>
+<ol>
+    {% for q in survey.questions %}
+        <li>{{ q.text }} ({{ q.q_type }})
+            <ul>
+                {% for c in q.choices %}
+                    <li>{{ c.text }}</li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+</ol>
+{% endblock %}

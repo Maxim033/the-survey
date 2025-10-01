@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Новый опрос</h2>
+<form method="post">
+    <div class="mb-3">
+        <input class="form-control" name="title" placeholder="Название" required>
+    </div>
+    <div class="mb-3">
+        <textarea class="form-control" name="description" placeholder="Описание"></textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Создать</button>
+</form>
+{% endblock %}

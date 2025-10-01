@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Список опросов</h2>
+<a href="{{ url_for('main.new_survey') }}" class="btn btn-success mb-3">➕ Создать опрос</a>
+
+<ul class="list-group">
+    {% for s in surveys %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <strong>{{ s.title }}</strong>
+                {% if not s.is_active %}
+                    <span class="badge bg-warning text-dark">в разработке</span>
+                {% else %}
+                    <span class="badge bg-success">активный</span>
+                {% endif %}
+                <br>
+                <small class="text-muted">{{ s.description }}</small>
+            </div>
+            <div>
+                {% if s.is_active %}
+                    <a href="{{ url_for('main.take_survey', survey_id=s.id) }}" class="btn btn-primary btn-sm">✏️ Пройти</a>
+                {% endif %}
+                <a href="{{ url_for('main.results', survey_id=s.id) }}" class="btn btn-info btn-sm">📊 Результаты</a>
+                <form method="post" action="{{ url_for('main.delete_survey', survey_id=s.id) }}" style="display:inline;">
+                    <button class="btn btn-danger btn-sm" onclick="return confirm('Удалить опрос?')">🗑️ Удалить</button>
+                </form>
+            </div>
+        </li>
+    {% else %}
+        <li class="list-group-item">Нет опросов</li>
+    {% endfor %}
+</ul>
+{% endblock %}

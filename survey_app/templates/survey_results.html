@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Результаты опроса: {{ survey.title }}</h2>
+
+{% for q, answers in stats.items() %}
+  <div class="mb-3 p-3 border rounded bg-white">
+    <h5>{{ q }}</h5>
+    <ul>
+      {% for choice, count in answers.items() %}
+        <li>{{ choice }} — <strong>{{ count }}</strong></li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endfor %}
+{% endblock %}

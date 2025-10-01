@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ survey.title }}</h2>
+<p>{{ survey.description }}</p>
+<form method="post">
+  {% for q in survey.questions %}
+    <div class="mb-3">
+      <strong>{{ q.text }}</strong><br>
+      {% if q.q_type == "single" %}
+        {% for choice in q.choices %}
+          <div>
+            <input type="radio" name="{{ q.id }}" value="{{ choice.id }}"> {{ choice.text }}
+          </div>
+        {% endfor %}
+      {% else %}
+        {% for choice in q.choices %}
+          <div>
+            <input type="checkbox" name="{{ q.id }}" value="{{ choice.id }}"> {{ choice.text }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  {% endfor %}
+  <button class="btn btn-primary">Отправить</button>
+</form>
+{% endblock %}
