@@ -8,9 +8,11 @@
 <!-- Форма для добавления нового вопроса -->
 <h4>➕ Добавить новый вопрос</h4>
 <form method="post" class="mb-4">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
     <div class="mb-3">
         <label class="form-label">Текст вопроса</label>
-        <input type="text" name="question_text" class="form-control" required>
+        <input type="text" name="question_text" class="form-control" required maxlength="500">
     </div>
 
     <div class="mb-3">
@@ -22,9 +24,10 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Варианты ответа (минимум один)</label>
-        <input type="text" name="choice_text" class="form-control mb-2" placeholder="Вариант 1">
-        <input type="text" name="choice_text" class="form-control mb-2" placeholder="Вариант 2">
+        <label class="form-label">Варианты ответа (минимум один, максимум 6)</label>
+        <input type="text" name="choice_text" class="form-control mb-2" placeholder="Вариант 1" maxlength="200" required>
+        <input type="text" name="choice_text" class="form-control mb-2" placeholder="Вариант 2" maxlength="200">
+        <input type="text" name="choice_text" class="form-control mb-2" placeholder="Вариант 3" maxlength="200">
     </div>
 
     <button type="submit" class="btn btn-success">Добавить вопрос</button>
@@ -47,18 +50,26 @@
                     {% for c in q.choices %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             {{ c.text }}
-                            <a href="{{ url_for('main.delete_choice', choice_id=c.id, survey_id=survey.id) }}"
-                               class="btn btn-sm btn-outline-danger">➖ Удалить</a>
+                            <form method="post" action="{{ url_for('main.delete_choice', choice_id=c.id, survey_id=survey.id) }}" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить этот вариант?')">➖ Удалить</button>
+                            </form>
                         </li>
                     {% endfor %}
                 </ul>
 
                 <div class="mt-2">
-                    <a href="{{ url_for('main.add_choice', question_id=q.id, survey_id=survey.id) }}"
-                       class="btn btn-sm btn-outline-success">➕ Добавить вариант</a>
-                    <a href="{{ url_for('main.delete_question', question_id=q.id, survey_id=survey.id) }}"
-                       class="btn btn-sm btn-outline-danger"
-                       onclick="return confirm('Удалить этот вопрос?')">🗑️ Удалить вопрос</a>
+                    {% if q.choices|length < 10 %}
+                    <form method="post" action="{{ url_for('main.add_choice', question_id=q.id, survey_id=survey.id) }}" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-outline-success">➕ Добавить вариант</button>
+                    </form>
+                    {% endif %}
+
+                    <form method="post" action="{{ url_for('main.delete_question', question_id=q.id, survey_id=survey.id) }}" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить этот вопрос?')">🗑️ Удалить вопрос</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -71,6 +82,7 @@
 
 <!-- Завершить опрос -->
 <form method="post" action="{{ url_for('main.finish_survey', survey_id=survey.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button type="submit" class="btn btn-primary">✅ Завершить и опубликовать опрос</button>
     <a href="{{ url_for('main.index') }}" class="btn btn-secondary">⬅ Вернуться на главную</a>
 </form>

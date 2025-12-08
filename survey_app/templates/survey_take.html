@@ -2,25 +2,84 @@
 {% block content %}
 <h2>{{ survey.title }}</h2>
 <p>{{ survey.description }}</p>
+
 <form method="post">
   {% for q in survey.questions %}
-    <div class="mb-3">
-      <strong>{{ q.text }}</strong><br>
-      {% if q.q_type == "single" %}
-        {% for choice in q.choices %}
-          <div>
-            <input type="radio" name="{{ q.id }}" value="{{ choice.id }}"> {{ choice.text }}
-          </div>
-        {% endfor %}
-      {% else %}
-        {% for choice in q.choices %}
-          <div>
-            <input type="checkbox" name="{{ q.id }}" value="{{ choice.id }}"> {{ choice.text }}
-          </div>
-        {% endfor %}
-      {% endif %}
+    <div class="mb-3 card">
+      <div class="card-body">
+        <strong>{{ q.text }}</strong><br>
+        {% if q.q_type == "single" %}
+          {% for choice in q.choices %}
+            <div class="form-check">
+              <input class="form-check-input" type="radio"
+                     name="{{ q.id }}"
+                     value="{{ choice.id }}"
+                     id="choice_{{ choice.id }}"
+                     {% if loop.first %}required{% endif %}>
+              <label class="form-check-label" for="choice_{{ choice.id }}">
+                {{ choice.text }}
+              </label>
+            </div>
+          {% endfor %}
+        {% else %}
+          {% for choice in q.choices %}
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox"
+                     name="{{ q.id }}"
+                     value="{{ choice.id }}"
+                     id="choice_{{ choice.id }}">
+              <label class="form-check-label" for="choice_{{ choice.id }}">
+                {{ choice.text }}
+              </label>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
     </div>
   {% endfor %}
-  <button class="btn btn-primary">Отправить</button>
+
+  <button type="submit" class="btn btn-primary">Отправить</button>
+  <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Отмена</a>
 </form>
+
+<script>
+  // Простая валидация: для radio кнопок добавляем required к первому варианту
+  document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        let valid = true;
+
+        // Проверяем radio группы
+        const radioGroups = {};
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+          const name = radio.name;
+          if (!radioGroups[name]) {
+            radioGroups[name] = [];
+          }
+          radioGroups[name].push(radio);
+        });
+
+        // Проверяем, что в каждой radio группе выбран вариант
+        Object.keys(radioGroups).forEach(name => {
+          const checked = radioGroups[name].some(radio => radio.checked);
+          if (!checked) {
+            valid = false;
+            // Подсвечиваем группу
+            const firstRadio = radioGroups[name][0];
+            const card = firstRadio.closest('.card');
+            if (card) {
+              card.style.borderColor = 'red';
+            }
+          }
+        });
+
+        if (!valid) {
+          e.preventDefault();
+          alert('Пожалуйста, ответьте на все вопросы с одним вариантом ответа');
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}
